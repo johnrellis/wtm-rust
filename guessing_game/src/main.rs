@@ -1,4 +1,6 @@
-use rand::Rng; // The Rng trait defines methods that random number generators implement, and this trait must be in scope for us to use those methods. Chapter 10 will cover traits in detail.
+use rand::Rng;
+// The Rng trait defines methods that random number generators implement, and this trait must be in scope for us to use those methods. Chapter 10 will cover traits in detail.
+use std::cmp::Ordering;
 use std::io;
 
 fn main() {
@@ -6,17 +8,29 @@ fn main() {
 
     let secret_number = rand::thread_rng().gen_range(1..=100);
 
-    println!("The secret number is: {secret_number}");
+    loop {
+        println!("Please input your guess.");
 
-    println!("Please input your guess.");
+        let mut guess = String::new();
 
-    let mut guess = String::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
 
-    io::stdin()
-        .read_line(&mut guess)
-        .expect("Failed to read line");
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue
+        };
 
-    println!("You guessed: {}", guess);
+        println!("You guessed: {}", guess);
 
-    //  https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html#comparing-the-guess-to-the-secret-number
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
 }
